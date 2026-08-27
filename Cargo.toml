@@ -1,0 +1,13 @@
+[package]
+name = "mapf-rs"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+authors = ["Ukuma012 <Ukuma012@gmail.com>"]
+description = "Multi-agent path finding (MAPF) algorithms in Rust"
+repository = "https://github.com/Ukuma012/mapf-rs"
+readme = "README.md"
+keywords = ["mapf", "path-finding", "multi-agent"]
+categories = ["algorithms", "science::robotics"]
+
+[dependencies]
