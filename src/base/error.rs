@@ -3,32 +3,15 @@ use std::path::PathBuf;
 
 #[derive(Debug)]
 pub enum Error {
-    Io {
-        path: PathBuf,
-        source: std::io::Error,
-    },
-    ParseMap {
-        path: PathBuf,
-        line: usize,
-        msg: &'static str,
-    },
-    ParseScen {
-        path: PathBuf,
-        line: usize,
-        msg: &'static str,
-    },
+    Io(std::io::Error),
+    ParseMap { path: PathBuf },
 }
 
 impl fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Error::Io { path, source } => write!(f, "failed to read {}: {source}", path.display()),
-            Error::ParseMap { path, line, msg } => {
-                write!(f, "{}:{line}: invalid map: {msg}", path.display())
-            }
-            Error::ParseScen { path, line, msg } => {
-                write!(f, "{}:{line}: invalid scenario: {msg}", path.display())
-            }
+            Error::Io(e) => write!(f, "{e}"),
+            Error::ParseMap { path } => write!(f, "{}: invalid map file", path.display()),
         }
     }
 }
@@ -36,9 +19,15 @@ impl fmt::Display for Error {
 impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            Error::Io { source, .. } => Some(source),
+            Error::Io(e) => Some(e),
             _ => None,
         }
+    }
+}
+
+impl From<std::io::Error> for Error {
+    fn from(e: std::io::Error) -> Self {
+        Error::Io(e)
     }
 }
 
