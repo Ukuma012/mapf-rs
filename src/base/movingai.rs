@@ -31,7 +31,7 @@ fn parse_map(text: &str) -> Option<(usize, usize, Vec<bool>)> {
                     }
                 }
             }
-            _ => {} 
+            _ => {}
         }
     }
 
@@ -54,4 +54,31 @@ fn parse_map(text: &str) -> Option<(usize, usize, Vec<bool>)> {
     }
 
     Some((width, height, passable))
+}
+
+pub(super) struct ScenEntry {
+    pub start: (usize, usize),
+    pub goal: (usize, usize),
+}
+
+pub(super) fn read_scen_file(path: &Path) -> Result<Vec<ScenEntry>> {
+    let text = std::fs::read_to_string(path)?;
+    parse_scen(&text).ok_or_else(|| Error::ParseScen {
+        path: path.to_path_buf(),
+    })
+}
+
+fn parse_scen(text: &str) -> Option<Vec<ScenEntry>> {
+    let mut entries = Vec::new();
+    for line in text.lines() {
+        let f: Vec<&str> = line.split('\t').collect();
+        if f.len() != 9 {
+            continue;
+        }
+        entries.push(ScenEntry {
+            start: (f[4].parse().ok()?, f[5].parse().ok()?),
+            goal: (f[6].parse().ok()?, f[7].parse().ok()?),
+        });
+    }
+    Some(entries)
 }

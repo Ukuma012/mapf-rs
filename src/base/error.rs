@@ -5,6 +5,9 @@ use std::path::PathBuf;
 pub enum Error {
     Io(std::io::Error),
     ParseMap { path: PathBuf },
+    ParseScen { path: PathBuf },
+    InvalidInstance,
+    NotEnoughAgents { requested: usize, available: usize },
 }
 
 impl fmt::Display for Error {
@@ -12,6 +15,15 @@ impl fmt::Display for Error {
         match self {
             Error::Io(e) => write!(f, "{e}"),
             Error::ParseMap { path } => write!(f, "{}: invalid map file", path.display()),
+            Error::ParseScen { path } => write!(f, "{}: invalid scen file", path.display()),
+            Error::InvalidInstance => write!(f, "invalid instance"),
+            Error::NotEnoughAgents {
+                requested,
+                available,
+            } => write!(
+                f,
+                "requested {requested} agents but scenario provides {available}"
+            ),
         }
     }
 }
