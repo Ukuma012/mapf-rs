@@ -99,3 +99,5 @@ fn has_duplicate(vertices: &[VertexId]) -> bool {
     let mut seen = HashSet::with_capacity(vertices.len());
     !vertices.iter().all(|v| seen.insert(*v))
 }
+
+pub type Config = Vec<VertexId>;
