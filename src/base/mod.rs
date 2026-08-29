@@ -3,6 +3,7 @@ mod error;
 mod graph;
 mod instance;
 mod movingai;
+mod rng;
 mod solution;
 
 pub use dist::{Dist, DistTable};
