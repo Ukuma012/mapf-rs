@@ -1,3 +1,4 @@
+mod conflict;
 mod deadline;
 mod dist;
 mod error;
@@ -7,6 +8,7 @@ mod movingai;
 mod rng;
 mod solution;
 
+pub use conflict::{Conflict, find_conflict_in_paths};
 pub use deadline::Deadline;
 pub use dist::{Dist, DistTable};
 pub use error::{Error, Result};

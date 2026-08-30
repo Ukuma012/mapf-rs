@@ -11,6 +11,25 @@ impl Solution {
         Self { configs }
     }
 
+    pub fn from_paths(paths: Vec<Vec<VertexId>>) -> Self {
+        assert!(
+            paths.iter().all(|p| !p.is_empty()),
+            "each path must contain at least the start vertex"
+        );
+
+        let len = paths.iter().map(|p| p.len()).max().unwrap_or(0);
+        let mut configs = Vec::with_capacity(len);
+        for t in 0..len {
+            configs.push(
+                paths
+                    .iter()
+                    .map(|p| *p.get(t).unwrap_or_else(|| p.last().unwrap()))
+                    .collect(),
+            );
+        }
+        Self { configs }
+    }
+
     pub fn len(&self) -> usize {
         self.configs.len()
     }
