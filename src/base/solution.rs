@@ -1,6 +1,29 @@
 use std::fmt;
 
-use crate::base::{AgentId, VertexId, instance::Config};
+use crate::base::conflict::scan;
+use crate::base::{AgentId, Conflict, Instance, VertexId, instance::Config};
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ValidationError {
+    Empty,
+    NumAgentsMismatch {
+        expected: usize,
+        found: usize,
+    },
+    WrongStart {
+        a: AgentId,
+    },
+    UnreachedGoal {
+        a: AgentId,
+    },
+    IllegalMove {
+        t: usize,
+        a: AgentId,
+        from: VertexId,
+        to: VertexId,
+    },
+    Conflict(Conflict),
+}
 
 pub struct Solution {
     configs: Vec<Config>,
@@ -92,6 +115,51 @@ impl Solution {
 
     pub fn path_of(&self, a: AgentId) -> impl Iterator<Item = VertexId> {
         self.configs.iter().map(move |c| c[a.index()])
+    }
+
+    pub fn validate(&self, ins: &Instance) -> Result<(), ValidationError> {
+        if self.configs.is_empty() {
+            return Err(ValidationError::Empty);
+        }
+        if self.num_agents() != ins.num_agents() {
+            return Err(ValidationError::NumAgentsMismatch {
+                expected: ins.num_agents(),
+                found: self.num_agents(),
+            });
+        }
+
+        let first = &self.configs[0];
+        let last = &self.configs[self.configs.len() - 1];
+        for a in 0..ins.num_agents() {
+            if first[a] != ins.starts()[a] {
+                return Err(ValidationError::WrongStart { a: AgentId(a as u32) });
+            }
+            if last[a] != ins.goals()[a] {
+                return Err(ValidationError::UnreachedGoal { a: AgentId(a as u32) });
+            }
+        }
+
+        let graph = ins.graph();
+        for t in 1..self.configs.len() {
+            for a in 0..ins.num_agents() {
+                let (from, to) = (self.configs[t - 1][a], self.configs[t][a]);
+                if !graph.actions(from).contains(&to) {
+                    return Err(ValidationError::IllegalMove {
+                        t,
+                        a: AgentId(a as u32),
+                        from,
+                        to,
+                    });
+                }
+            }
+        }
+
+        match scan(self.num_agents(), self.configs.len(), |a, t| {
+            self.configs[t][a]
+        }) {
+            Some(c) => Err(ValidationError::Conflict(c)),
+            None => Ok(()),
+        }
     }
 }
 

@@ -82,3 +82,34 @@ fn parse_scen(text: &str) -> Option<Vec<ScenEntry>> {
     }
     Some(entries)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::parse_map;
+
+    #[test]
+    fn parses_valid_map() {
+        // with a type line; T is an obstacle
+        let (w, h, passable) = parse_map("type octile\nheight 2\nwidth 3\nmap\n.T@\n...\n").unwrap();
+        assert_eq!((w, h), (3, 2));
+        assert_eq!(passable, vec![true, false, false, true, true, true]);
+
+        // no type line, CRLF endings
+        assert!(parse_map("height 1\r\nwidth 2\r\nmap\r\n..\r\n").is_some());
+    }
+
+    #[test]
+    fn rejects_broken_input() {
+        for text in [
+            "height 2\nwidth 2\n..\n..",        // no "map" line
+            "height 2\nmap\n..\n..",            // missing width
+            "width 2\nmap\n..\n..",             // missing height
+            "height 0\nwidth 2\nmap\n",         // zero dimension
+            "height 2\nwidth 4\nmap\n....\n..", // row shorter than width
+            "height 3\nwidth 2\nmap\n..\n..",   // fewer rows than height
+            "height 1\nwidth 3\nmap\n.S.",      // unknown terrain character
+        ] {
+            assert!(parse_map(text).is_none(), "should reject: {text:?}");
+        }
+    }
+}

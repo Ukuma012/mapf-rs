@@ -15,4 +15,4 @@ pub use error::{Error, Result};
 pub use graph::{Graph, VertexId};
 pub use instance::{AgentId, Config, Instance};
 pub use rng::Rng;
-pub use solution::Solution;
+pub use solution::{Solution, ValidationError};

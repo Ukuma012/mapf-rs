@@ -22,7 +22,7 @@ impl fmt::Display for Error {
                 available,
             } => write!(
                 f,
-                "requested {requested} agents but scenario provides {available}"
+                "requested {requested} agents but only {available} available"
             ),
         }
     }

@@ -1,6 +1,6 @@
 use std::{collections::HashSet, path::Path, sync::Arc};
 
-use crate::base::{Error, Graph, Result, VertexId, movingai};
+use crate::base::{Error, Graph, Result, Rng, VertexId, movingai};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct AgentId(pub u32);
@@ -78,6 +78,27 @@ impl Instance {
         Self::new(graph, starts, goals)
     }
 
+    /// Builds an instance with random starts and goals.
+    ///
+    /// Starts are distinct from each other, and so are goals.
+    pub fn random(graph: impl Into<Arc<Graph>>, num_agents: usize, seed: u64) -> Result<Self> {
+        let graph = graph.into();
+        let n = graph.num_vertices();
+        if num_agents > n {
+            return Err(Error::NotEnoughAgents {
+                requested: num_agents,
+                available: n,
+            });
+        }
+
+        let mut rng = Rng::new(seed);
+        let mut ids: Vec<VertexId> = (0..n as u32).map(VertexId).collect();
+        let starts = sample(&mut rng, &mut ids, num_agents);
+        let goals = sample(&mut rng, &mut ids, num_agents);
+
+        Self::new(graph, starts, goals)
+    }
+
     pub fn graph(&self) -> &Graph {
         &self.graph
     }
@@ -101,3 +122,13 @@ fn has_duplicate(vertices: &[VertexId]) -> bool {
 }
 
 pub type Config = Vec<VertexId>;
+
+/// Partial Fisher-Yates: leaves a uniform random sample of `k` distinct
+/// elements in the first `k` slots.
+fn sample(rng: &mut Rng, ids: &mut [VertexId], k: usize) -> Vec<VertexId> {
+    let n = ids.len();
+    for i in 0..k {
+        ids.swap(i, i + rng.below(n - i));
+    }
+    ids[..k].to_vec()
+}

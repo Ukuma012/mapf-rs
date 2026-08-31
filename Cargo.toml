@@ -9,5 +9,11 @@ repository = "https://github.com/Ukuma012/mapf-rs"
 readme = "README.md"
 keywords = ["mapf", "path-finding", "multi-agent"]
 categories = ["algorithms", "science::robotics"]
+license = "MIT OR Apache-2.0"
+exclude = ["assets/"]
 
 [dependencies]
+
+[profile.release]
+lto = true
+codegen-units = 1

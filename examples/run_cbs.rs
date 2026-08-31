@@ -12,11 +12,11 @@ fn main() -> mapf_rs::base::Result<()> {
             Instance::from_scen_file(graph.clone(), "assets/random-32-32-10-random-1.scen", k)?;
         let deadline = Deadline::from_secs_f32(10.0);
         match cbs::solve(&ins, &deadline) {
-            Some(sol) => println!(
+            Some(solution) => println!(
                 "k={k:<4} solved  makespan={:<5} soc={:<7} loss={:<7} {:.1}ms",
-                sol.makespan(),
-                sol.sum_of_costs(),
-                sol.sum_of_loss(),
+                solution.makespan(),
+                solution.sum_of_costs(),
+                solution.sum_of_loss(),
                 deadline.elapsed_ms()
             ),
             None => println!("k={k:<4} failed  {:.1}ms", deadline.elapsed_ms()),

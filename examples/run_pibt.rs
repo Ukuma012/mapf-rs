@@ -15,11 +15,11 @@ fn main() -> mapf_rs::base::Result<()> {
         )?;
         let deadline = Deadline::from_secs_f32(10.0);
         match pibt::solve(&ins, 0, &deadline) {
-            Some(sol) => println!(
+            Some(solution) => println!(
                 "k={k:<4} solved  makespan={:<5} soc={:<7} loss={:<7} {:.1}ms",
-                sol.makespan(),
-                sol.sum_of_costs(),
-                sol.sum_of_loss(),
+                solution.makespan(),
+                solution.sum_of_costs(),
+                solution.sum_of_loss(),
                 deadline.elapsed_ms()
             ),
             None => println!("k={k:<4} failed  {:.1}ms", deadline.elapsed_ms()),

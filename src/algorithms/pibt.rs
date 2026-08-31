@@ -1,3 +1,12 @@
+//! PIBT: Priority Inheritance with Backtracking.
+//!
+//! Okumura et al., "Priority Inheritance with Backtracking for Iterative
+//! Multi-agent Path Finding", IJCAI 2019.
+//!
+//! The swap operation and the priority-inheritance procedure are ported from
+//! <https://github.com/Kei18/lacam0> (MIT License, Copyright (c) 2025 Keisuke
+//! Okumura).
+
 use std::cmp::{Ordering, Reverse};
 use std::mem;
 
