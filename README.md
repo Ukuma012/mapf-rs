@@ -4,10 +4,12 @@ Multi-agent path finding (MAPF) algorithms in Rust.
 
 ## Algorithms
 
-- **CBS** — Sharon, Stern, Felner, Sturtevant, "Conflict-based search for
-  optimal multi-agent pathfinding", _Artificial Intelligence_ 219 (2015)
-- **PIBT** — Okumura, Machida, Défago, Tamura, "Priority Inheritance with
-  Backtracking for Iterative Multi-agent Path Finding", IJCAI 2019
+- **CBS** — Guni Sharon, Roni Stern, Ariel Felner, Nathan R. Sturtevant,
+  "Conflict-based search for optimal multi-agent pathfinding",
+  _Artificial Intelligence_ 219 (2015)
+- **PIBT** — Keisuke Okumura, Manao Machida, Xavier Défago, Yasumasa Tamura,
+  "Priority Inheritance with Backtracking for Iterative Multi-agent Path
+  Finding", _IJCAI_ 2019
 
 ## Usage
 
@@ -26,6 +28,14 @@ fn main() {
     assert!(solution.validate(&instance).is_ok());
     println!("makespan {} soc {}", solution.makespan(), solution.sum_of_costs());
 }
+```
+
+Solutions can be written in the format read by
+[mapf-visualizer](https://github.com/Kei18/mapf-visualizer):
+
+```sh
+cargo run --release --example visualize
+mapf-visualizer assets/random-32-32-10.map results/solution.txt
 ```
 
 #### License

@@ -238,3 +238,31 @@ fn validate_detects_wrong_start_and_unreached_goal() {
         Err(ValidationError::Empty)
     );
 }
+
+// ---- mapf-visualizer output ----
+
+#[test]
+fn visualizer_output_is_parsable_by_the_reference_regex() {
+    let g = Graph::from_grid(3, 1, &[true; 3]);
+    let instance = Instance::new(g.clone(), vec![v(0), v(2)], vec![v(1), v(2)]).unwrap();
+    let solution = Solution::from_configs(vec![vec![v(0), v(2)], vec![v(1), v(2)]]);
+    assert_eq!(solution.validate(&instance), Ok(()));
+
+    let mut out = Vec::new();
+    solution.write_visualizer(&mut out, &g).unwrap();
+    let text = String::from_utf8(out).unwrap();
+
+    // mapf-visualizer only looks at lines containing ":(" and its regex
+    // requires a comma after every "(x,y)", including the last one.
+    let lines: Vec<&str> = text.lines().filter(|l| l.contains(":(")).collect();
+    assert_eq!(lines.len(), solution.len());
+    for (t, line) in lines.iter().enumerate() {
+        let (prefix, rest) = line.split_once(':').unwrap();
+        assert_eq!(prefix, t.to_string());
+        assert!(rest.ends_with(','), "missing trailing comma: {line:?}");
+        assert_eq!(rest.matches("),").count(), solution.num_agents());
+    }
+
+    assert_eq!(lines[0], "0:(0,0),(2,0),");
+    assert_eq!(lines[1], "1:(1,0),(2,0),");
+}

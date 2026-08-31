@@ -1,7 +1,9 @@
 use std::fmt;
+use std::io::{self, Write};
+use std::path::Path;
 
 use crate::base::conflict::scan;
-use crate::base::{AgentId, Conflict, Instance, VertexId, instance::Config};
+use crate::base::{AgentId, Conflict, Graph, Instance, Result, VertexId, instance::Config};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ValidationError {
@@ -115,6 +117,33 @@ impl Solution {
 
     pub fn path_of(&self, a: AgentId) -> impl Iterator<Item = VertexId> {
         self.configs.iter().map(move |c| c[a.index()])
+    }
+
+    /// Writes the solution in the text format read by
+    /// [mapf-visualizer](https://github.com/Kei18/mapf-visualizer).
+    pub fn write_visualizer<W: io::Write>(&self, w: &mut W, graph: &Graph) -> io::Result<()> {
+        writeln!(w, "agents={}", self.num_agents())?;
+        writeln!(w, "makespan={}", self.makespan())?;
+        writeln!(w, "soc={}", self.sum_of_costs())?;
+        writeln!(w, "solution=")?;
+        for (t, config) in self.configs.iter().enumerate() {
+            write!(w, "{t}:")?;
+            for &v in config {
+                let (x, y) = graph.coord(v);
+                // the trailing comma is required by the visualizer's parser
+                write!(w, "({x},{y}),")?;
+            }
+            writeln!(w)?;
+        }
+        Ok(())
+    }
+
+    /// Writes the solution to `path` in mapf-visualizer format.
+    pub fn write_visualizer_file(&self, path: impl AsRef<Path>, graph: &Graph) -> Result<()> {
+        let mut w = io::BufWriter::new(std::fs::File::create(path)?);
+        self.write_visualizer(&mut w, graph)?;
+        w.flush()?;
+        Ok(())
     }
 
     pub fn validate(&self, ins: &Instance) -> Result<(), ValidationError> {
