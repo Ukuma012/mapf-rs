@@ -10,20 +10,23 @@ Multi-agent path finding (MAPF) algorithms in Rust.
 - **PIBT** — Keisuke Okumura, Manao Machida, Xavier Défago, Yasumasa Tamura,
   "Priority Inheritance with Backtracking for Iterative Multi-agent Path
   Finding", _IJCAI_ 2019
+- **LaCAM** — Keisuke Okumura, "LaCAM: Search-Based Algorithm for Quick
+  Multi-Agent Pathfinding", _AAAI_ 2023, and "Improving LaCAM for Scalable
+  Eventually Optimal Multi-Agent Pathfinding", _IJCAI_ 2023
 
 ## Usage
 
 ```rust
 use std::sync::Arc;
 
-use mapf_rs::algorithms::pibt;
+use mapf_rs::algorithms::lacam;
 use mapf_rs::base::{Deadline, Graph, Instance};
 
 fn main() {
     let graph = Arc::new(Graph::from_grid(8, 8, &[true; 64]));
     let instance = Instance::random(graph, 20, 0).unwrap();
 
-    let solution = pibt::solve(&instance, 0, &Deadline::from_secs_f32(1.0)).unwrap();
+    let solution = lacam::solve(&instance, 0, &Deadline::from_secs_f32(1.0)).unwrap();
 
     assert!(solution.validate(&instance).is_ok());
     println!("makespan {} soc {}", solution.makespan(), solution.sum_of_costs());

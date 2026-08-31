@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use mapf_rs::algorithms::{cbs, pibt};
+use mapf_rs::algorithms::{cbs, lacam, pibt};
 use mapf_rs::base::{Deadline, Graph, Instance};
 
 fn map() -> Arc<Graph> {
@@ -88,4 +88,42 @@ fn pibt_swap_resolves_tunnel_deadlock() {
             .unwrap_or_else(|| panic!("deadlock at seed={seed}"));
         assert_eq!(solution.validate(&ins), Ok(()));
     }
+}
+
+#[test]
+fn lacam_solutions_are_valid() {
+    let g = map();
+    for k in [1, 10, 50, 200, 400] {
+        let instance = Instance::from_scen_file(g.clone(), SCEN, k).unwrap();
+        for seed in 0..3 {
+            let solution = lacam::solve(&instance, seed, &dl()).expect("lacam should solve");
+            assert_eq!(solution.validate(&instance), Ok(()), "k={k} seed={seed}");
+
+            let solution = lacam::solve_star(&instance, seed, &Deadline::from_secs_f32(0.2))
+                .expect("lacam* should solve");
+            assert_eq!(solution.validate(&instance), Ok(()), "star k={k} seed={seed}");
+        }
+    }
+}
+
+#[test]
+fn lacam_star_is_never_worse_than_lacam() {
+    let g = map();
+    for k in [10, 20, 50] {
+        let instance = Instance::from_scen_file(g.clone(), SCEN, k).unwrap();
+        let plain = lacam::solve(&instance, 0, &dl()).unwrap().sum_of_costs();
+        let star = lacam::solve_star(&instance, 0, &Deadline::from_secs_f32(1.0))
+            .unwrap()
+            .sum_of_costs();
+        assert!(star <= plain, "k={k}: lacam* {star} > lacam {plain}");
+    }
+}
+
+#[test]
+fn lacam_is_deterministic_for_a_seed() {
+    let g = map();
+    let instance = Instance::from_scen_file(g, SCEN, 100).unwrap();
+    let a = lacam::solve(&instance, 3, &dl()).unwrap();
+    let b = lacam::solve(&instance, 3, &dl()).unwrap();
+    assert_eq!(a.configs(), b.configs());
 }

@@ -7,7 +7,7 @@
 
 use std::sync::Arc;
 
-use mapf_rs::algorithms::pibt;
+use mapf_rs::algorithms::lacam;
 use mapf_rs::base::{Deadline, Graph, Instance};
 
 fn main() -> mapf_rs::base::Result<()> {
@@ -16,7 +16,7 @@ fn main() -> mapf_rs::base::Result<()> {
     let instance =
         Instance::from_scen_file(graph.clone(), "assets/random-32-32-10-random-1.scen", 100)?;
 
-    let solution = pibt::solve(&instance, 0, &Deadline::from_secs_f32(10.0)).unwrap();
+    let solution = lacam::solve(&instance, 0, &Deadline::from_secs_f32(10.0)).unwrap();
     assert!(solution.validate(&instance).is_ok());
 
     std::fs::create_dir_all("results")?;
