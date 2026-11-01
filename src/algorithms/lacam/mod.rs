@@ -92,7 +92,7 @@ impl<'a> LaCAM<'a> {
 
     fn h_value(&mut self, config: &[VertexId]) -> usize {
         (0..config.len())
-            .map(|i| self.dist.get(self.goals[i], config[i]).get().unwrap_or(0) as usize)
+            .map(|i| self.dist.get(self.goals[i], config[i]).value().unwrap_or(0) as usize)
             .sum()
     }
 
@@ -118,7 +118,7 @@ impl<'a> LaCAM<'a> {
             None => (0..n)
                 .map(|i| Priority {
                     elapsed: 0,
-                    init_d: self.dist.get(self.goals[i], config[i]).get().unwrap_or(0),
+                    init_d: self.dist.get(self.goals[i], config[i]).value().unwrap_or(0),
                 })
                 .collect(),
             Some(p) => {

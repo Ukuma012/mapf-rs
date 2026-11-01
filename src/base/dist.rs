@@ -12,7 +12,7 @@ impl Dist {
         self != Self::UNREACHABLE
     }
 
-    pub fn get(self) -> Option<u32> {
+    pub fn value(self) -> Option<u32> {
         self.is_reachable().then_some(self.0)
     }
 }
@@ -26,7 +26,7 @@ impl Add<u32> for Dist {
 
 impl fmt::Debug for Dist {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self.get() {
+        match self.value() {
             Some(d) => write!(f, "{d}"),
             None => f.write_str("x"),
         }

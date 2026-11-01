@@ -138,7 +138,7 @@ fn low_level(
     }
 
     let horizon = latest_t + graph.num_vertices();
-    let h0 = dist.get(goal, start).get()? as usize;
+    let h0 = dist.get(goal, start).value()? as usize;
 
     let mut open = BinaryHeap::new();
     let mut parents: HashMap<(VertexId, usize), (VertexId, usize)> = HashMap::new();
@@ -174,7 +174,7 @@ fn low_level(
             if !closed.insert((nv, nt)) {
                 continue;
             }
-            let Some(h) = dist.get(goal, nv).get() else {
+            let Some(h) = dist.get(goal, nv).value() else {
                 continue;
             };
             parents.insert((nv, nt), (v, t));
