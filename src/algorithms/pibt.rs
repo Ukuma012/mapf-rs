@@ -310,8 +310,7 @@ impl<'a> Pibt<'a> {
 
     fn is_dead_end_goal(&self, v: VertexId) -> bool {
         self.graph.neighbors(v).len() == 1
-            && self.occupied_now[v.index()]
-                .is_some_and(|a| self.goals[a.index()] == v)
+            && self.occupied_now[v.index()].is_some_and(|a| self.goals[a.index()] == v)
     }
 }
 

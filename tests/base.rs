@@ -109,7 +109,9 @@ fn scen_reports_when_too_few_agents() {
     let g = Arc::new(Graph::from_movingai_file("assets/random-32-32-10.map").unwrap());
     let scen = "assets/random-32-32-10-random-1.scen";
     assert_eq!(
-        Instance::from_scen_file(g.clone(), scen, 10).unwrap().num_agents(),
+        Instance::from_scen_file(g.clone(), scen, 10)
+            .unwrap()
+            .num_agents(),
         10
     );
     match Instance::from_scen_file(g, scen, 100_000) {
@@ -125,7 +127,10 @@ fn random_instance_is_valid_and_reproducible() {
     let b = Instance::random(g.clone(), 100, 7).unwrap();
     assert_eq!(a.starts(), b.starts());
     assert_eq!(a.goals(), b.goals());
-    assert_ne!(a.starts(), Instance::random(g.clone(), 100, 8).unwrap().starts());
+    assert_ne!(
+        a.starts(),
+        Instance::random(g.clone(), 100, 8).unwrap().starts()
+    );
     assert!(Instance::random(g, 10_000, 0).is_err());
 }
 
@@ -155,8 +160,7 @@ fn sum_of_costs_and_loss_differ_when_an_agent_leaves_its_goal() {
 
 #[test]
 fn metrics_agree_when_an_agent_never_leaves_its_goal() {
-    let solution =
-        Solution::from_configs(vec![vec![v(0)], vec![v(1)], vec![v(2)], vec![v(2)]]);
+    let solution = Solution::from_configs(vec![vec![v(0)], vec![v(1)], vec![v(2)], vec![v(2)]]);
     assert_eq!(solution.makespan(), 3);
     assert_eq!(solution.path_cost(AgentId(0)), 2);
     assert_eq!(solution.sum_of_costs(), 2);
@@ -188,11 +192,8 @@ fn validate_accepts_a_correct_solution() {
 fn validate_detects_vertex_conflict() {
     let g = line3();
     let ins = Instance::new(g, vec![v(0), v(2)], vec![v(2), v(0)]).unwrap();
-    let solution = Solution::from_configs(vec![
-        vec![v(0), v(2)],
-        vec![v(1), v(1)],
-        vec![v(2), v(0)],
-    ]);
+    let solution =
+        Solution::from_configs(vec![vec![v(0), v(2)], vec![v(1), v(1)], vec![v(2), v(0)]]);
     assert!(matches!(
         solution.validate(&ins),
         Err(ValidationError::Conflict(Conflict::Vertex { t: 1, v, .. })) if v == VertexId(1)

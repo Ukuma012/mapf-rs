@@ -90,7 +90,8 @@ mod tests {
     #[test]
     fn parses_valid_map() {
         // with a type line; T is an obstacle
-        let (w, h, passable) = parse_map("type octile\nheight 2\nwidth 3\nmap\n.T@\n...\n").unwrap();
+        let (w, h, passable) =
+            parse_map("type octile\nheight 2\nwidth 3\nmap\n.T@\n...\n").unwrap();
         assert_eq!((w, h), (3, 2));
         assert_eq!(passable, vec![true, false, false, true, true, true]);
 

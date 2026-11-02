@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use mapf_rs::algorithms::{cbs, lacam, pibt};
-use mapf_rs::base::{Deadline, Graph, Instance};
+use mapf_rs::algorithms::{cbs, lacam, pibt, pp};
+use mapf_rs::base::{AgentId, Deadline, Graph, Instance};
 
 fn map() -> Arc<Graph> {
     Arc::new(Graph::from_movingai_file("assets/random-32-32-10.map").unwrap())
@@ -101,7 +101,11 @@ fn lacam_solutions_are_valid() {
 
             let solution = lacam::solve_star(&instance, seed, &Deadline::from_secs_f32(0.2))
                 .expect("lacam* should solve");
-            assert_eq!(solution.validate(&instance), Ok(()), "star k={k} seed={seed}");
+            assert_eq!(
+                solution.validate(&instance),
+                Ok(()),
+                "star k={k} seed={seed}"
+            );
         }
     }
 }
@@ -126,4 +130,70 @@ fn lacam_is_deterministic_for_a_seed() {
     let a = lacam::solve(&instance, 3, &dl()).unwrap();
     let b = lacam::solve(&instance, 3, &dl()).unwrap();
     assert_eq!(a.configs(), b.configs());
+}
+
+#[test]
+fn pp_solutions_are_valid() {
+    let g = map();
+    for k in [1, 10, 50, 100] {
+        let ins = Instance::from_scen_file(g.clone(), SCEN, k).unwrap();
+        for seed in 0..3 {
+            let solution = pp::solve(&ins, seed, &dl()).expect("pp should solve");
+            assert_eq!(solution.validate(&ins), Ok(()), "k={k} seed={seed}");
+        }
+    }
+}
+
+#[test]
+fn pp_is_deterministic_for_a_seed() {
+    let g = map();
+    let ins = Instance::from_scen_file(g, SCEN, 100).unwrap();
+    let a = pp::solve(&ins, 3, &dl()).unwrap();
+    let b = pp::solve(&ins, 3, &dl()).unwrap();
+    assert_eq!(a.configs(), b.configs());
+}
+
+#[test]
+fn pp_is_never_better_than_cbs() {
+    let g = map();
+    for k in [1, 5, 10, 20] {
+        let ins = Instance::from_scen_file(g.clone(), SCEN, k).unwrap();
+        let opt = cbs::solve(&ins, &dl()).unwrap().sum_of_costs();
+        let soc = pp::solve(&ins, 0, &dl()).unwrap().sum_of_costs();
+        assert!(soc >= opt, "k={k}: pp {soc} < cbs {opt}");
+    }
+}
+
+/// On `tunnel.map` the only passing bay sits beside one end of the corridor,
+/// so the priority order decides whether the instance is solvable at all.
+#[test]
+fn pp_depends_on_the_priority_order() {
+    let g = Arc::new(Graph::from_movingai_file("assets/tunnel.map").unwrap());
+    let a = g.vertex_at(0, 0).unwrap(); // beside the bay at y=1
+    let b = g.vertex_at(0, 5).unwrap(); // far end of the corridor
+    let ins = Instance::new(g, vec![a, b], vec![b, a]).unwrap();
+
+    // Agent 0 first: it sweeps the corridor, and agent 1 is left at the far
+    // end with no bay behind it to step aside into.
+    assert!(pp::solve_with_order(&ins, &[AgentId(0), AgentId(1)], &dl()).is_none());
+
+    // Agent 1 first: agent 0 ducks into the bay, waits for it to pass, and
+    // then walks the corridor it just vacated.
+    let solution = pp::solve_with_order(&ins, &[AgentId(1), AgentId(0)], &dl()).unwrap();
+    assert_eq!(solution.validate(&ins), Ok(()));
+    assert_eq!(solution.path_cost(AgentId(1)), 5);
+    assert!(solution.path_cost(AgentId(0)) > 5);
+
+    // Restarting recovers the order that works.
+    assert!(pp::solve(&ins, 0, &Deadline::from_secs_f32(1.0)).is_some());
+}
+
+#[test]
+fn pp_cannot_swap_in_a_one_wide_corridor() {
+    let g = Arc::new(Graph::from_grid(3, 1, &[true, true, true]));
+    let a = g.vertex_at(0, 0).unwrap();
+    let b = g.vertex_at(2, 0).unwrap();
+    let ins = Instance::new(g, vec![a, b], vec![b, a]).unwrap();
+
+    assert!(pp::solve(&ins, 0, &Deadline::from_secs_f32(0.2)).is_none());
 }

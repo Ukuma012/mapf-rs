@@ -1,7 +1,7 @@
 //! CBS: Conflict-Based Search.
 //!
 //! Sharon et al., "Conflict-based search for optimal multi-agent pathfinding",
-//! Artificial Intelligence 219 (2015). 
+//! Artificial Intelligence 219 (2015).
 
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap, HashSet};

@@ -161,10 +161,14 @@ impl Solution {
         let last = &self.configs[self.configs.len() - 1];
         for a in 0..ins.num_agents() {
             if first[a] != ins.starts()[a] {
-                return Err(ValidationError::WrongStart { a: AgentId(a as u32) });
+                return Err(ValidationError::WrongStart {
+                    a: AgentId(a as u32),
+                });
             }
             if last[a] != ins.goals()[a] {
-                return Err(ValidationError::UnreachedGoal { a: AgentId(a as u32) });
+                return Err(ValidationError::UnreachedGoal {
+                    a: AgentId(a as u32),
+                });
             }
         }
 

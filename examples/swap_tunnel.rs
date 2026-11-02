@@ -14,7 +14,11 @@ fn main() -> mapf_rs::base::Result<()> {
     let deadline = Deadline::from_secs_f32(3.0);
     match pibt::solve(&ins, 0, &deadline) {
         Some(solution) => {
-            println!("solved: makespan={} soc={}", solution.makespan(), solution.sum_of_costs());
+            println!(
+                "solved: makespan={} soc={}",
+                solution.makespan(),
+                solution.sum_of_costs()
+            );
             for t in 0..solution.len() {
                 let c = solution.config_at(t);
                 let p: Vec<_> = c.iter().map(|&v| graph.coord(v)).collect();

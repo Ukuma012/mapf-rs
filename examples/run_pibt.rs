@@ -8,11 +8,8 @@ fn main() -> mapf_rs::base::Result<()> {
     println!("{graph:?}");
 
     for k in [50, 100, 200, 300, 400] {
-        let ins = Instance::from_scen_file(
-            graph.clone(),
-            "assets/random-32-32-10-random-1.scen",
-            k,
-        )?;
+        let ins =
+            Instance::from_scen_file(graph.clone(), "assets/random-32-32-10-random-1.scen", k)?;
         let deadline = Deadline::from_secs_f32(10.0);
         match pibt::solve(&ins, 0, &deadline) {
             Some(solution) => println!(

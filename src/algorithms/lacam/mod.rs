@@ -14,9 +14,7 @@ use std::collections::{BTreeSet, HashMap, VecDeque};
 
 use pibt::Generator;
 
-use crate::base::{
-    AgentId, Config, Deadline, DistTable, Graph, Instance, Rng, Solution, VertexId,
-};
+use crate::base::{AgentId, Config, Deadline, DistTable, Graph, Instance, Rng, Solution, VertexId};
 
 /// Agent priority: how many timesteps it has spent away from its goal, then
 /// its distance from the goal in the initial configuration.

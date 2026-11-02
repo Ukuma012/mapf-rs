@@ -4,6 +4,10 @@ Multi-agent path finding (MAPF) algorithms in Rust.
 
 ## Algorithms
 
+- **PP** — Michael Erdmann, Tomás Lozano-Pérez, "On multiple moving objects",
+  _Algorithmica_ 2 (1987), and David Silver, "Cooperative Pathfinding", _AIIDE_
+  2005. Not complete: a priority order can fail on a solvable instance, so
+  `pp::solve` retries with reshuffled priorities until the deadline
 - **CBS** — Guni Sharon, Roni Stern, Ariel Felner, Nathan R. Sturtevant,
   "Conflict-based search for optimal multi-agent pathfinding",
   _Artificial Intelligence_ 219 (2015)
